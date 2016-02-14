@@ -28,6 +28,8 @@ public:
   bool request(void);
   bool request(uint8_t *address);
   bool request(const __FlashStringHelper *_address);
+  bool storeFirstSensorAddress();
+  uint8_t firstSensorAddress[8];
 
   bool available(void);
   float readTemperature(uint8_t *address);

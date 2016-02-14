@@ -73,8 +73,30 @@ bool DS18B20::begin(uint8_t quality)
 
   if (devices == 0)
     return false;
+    
+  storeFirstSensorAddress();
 
   return true;
+}
+
+// Store address of first device found
+// Return:
+// - true - if operation were successful
+// - false - if no valid device is found
+bool DS18B20::storeFirstSensorAddress()
+{
+    //find a device
+    if (!_oneWire->search(firstSensorAddress)) {
+       _oneWire->reset_search();
+       return false;
+    }
+    if (OneWire::crc8( firstSensorAddress, 7) != firstSensorAddress[7]) {
+       return false;
+    }
+    if (firstSensorAddress[0] != _DS18S20_ID && firstSensorAddress[0] != _DS18B20_ID) {
+       return false;
+    }
+    return true;
 }
 
 // Request for temperature measurements on all devices
