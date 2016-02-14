@@ -85,17 +85,22 @@ bool DS18B20::begin(uint8_t quality)
 // - false - if no valid device is found
 bool DS18B20::storeFirstSensorAddress()
 {
-    //find a device
+    //search for a device
     if (!_oneWire->search(firstSensorAddress)) {
-       _oneWire->reset_search();
-       return false;
+        // not a single device found
+        _oneWire->reset_search();
+        return false;
     }
+    // device found, check the crc
     if (OneWire::crc8( firstSensorAddress, 7) != firstSensorAddress[7]) {
-       return false;
+        // incorrect crc, search again recursively for next device on the bus
+        if(!storeFirstSensorAddress()) return false;
     }
     if (firstSensorAddress[0] != _DS18S20_ID && firstSensorAddress[0] != _DS18B20_ID) {
-       return false;
+        // incorrect device ID, search again recursively for next device on the bus
+        if(!storeFirstSensorAddress()) return false;
     }
+    // device found and stored.
     return true;
 }
 
