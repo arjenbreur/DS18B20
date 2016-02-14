@@ -32,13 +32,17 @@ public:
   bool available(void);
   float readTemperature(uint8_t *address);
   float readTemperature(const __FlashStringHelper *_address);
+  void setResolution(float resolution);
 
 private:
   OneWire *_oneWire;
   uint8_t _quality;
+  float _resolutions[5] = {0.5, 0.25, 0.125, 0.0625}; // set default, can be overwritten with setResolution() method
   bool _samePowerType;
   bool _powerType;
   uint32_t _beginConversionTime;
+  const byte _DS18S20_ID = 0x10;
+  const byte _DS18B20_ID = 0x28;
 
   bool _sendCommand(uint8_t *address, uint8_t command);
   bool _sendQuality(uint8_t *address);

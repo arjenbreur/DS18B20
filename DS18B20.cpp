@@ -55,7 +55,7 @@ bool DS18B20::begin(uint8_t quality)
     if (OneWire::crc8(address, 7) != address[7])
       return false;
 
-    if (address[0] != 0x28)
+    if (address[0] != _DS18B20_ID && address[0] != _DS18S20_ID)
       continue;
 
     if (!_sendQuality(address))
@@ -178,12 +178,11 @@ float DS18B20::readTemperature(uint8_t *address)
   if (OneWire::crc8(scratchpad, 8) != scratchpad[8])
     return TEMP_ERROR;
 
-  float quality[] = {0.5, 0.25, 0.125, 0.0625};
   uint8_t shift[] = {3, 2, 1, 0};
   int16_t raw = word(scratchpad[1], scratchpad[0]);
   raw >>= shift[_quality-9];
 
-  return raw * quality[_quality-9];
+  return raw * _resolutions[_quality-9];
 }
 
 // Read temperature from device
@@ -200,6 +199,14 @@ float DS18B20::readTemperature(const __FlashStringHelper *_address)
   _readFlashAddress(_address, address);
 
   return readTemperature(address);
+}
+
+// Set the resolution (conversion factor) for current quality
+// Argument: resolution (conversion factor)
+// Return: void
+void DS18B20::setResolution(float resolution)
+{
+    _resolutions[_quality-9] = resolution;
 }
 
 // private methods
